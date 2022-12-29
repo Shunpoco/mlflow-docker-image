@@ -1,0 +1,25 @@
+name: build
+
+on:
+  push:
+    branches:
+    - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Login
+      env:
+        CI_REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
+        CI_REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+      run: |
+        echo $CI_REGISTRY_PASSWORD > password.txt
+        cat password.txt | docker login -u $CI_REGISTRY_USER --password-stdin
+
+    - name: Build
+      run: docker build -t shunpoco/mlflow:latest .
+    - name: push
+      run: docker push shunpoco/mlflow:latest
