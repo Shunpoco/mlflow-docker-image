@@ -5,8 +5,17 @@ RUN apt-get update \
        git vim libyaml-cpp-dev libyaml-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install \
-    psycopg2-binary==2.9.3 \
-    mlflow[extras]==1.25.1
+RUN pip install mlflow
 
-ENTRYPOINT ["mlflow", "server"]
+EXPOSE 5001
+
+WORKDIR /mlflow/
+
+ENV BACKEND_URI sqlite:////mlflow/mlflow.db
+ENV ARTIFACT_ROOT /mlflow/artifacts
+
+CMD mlflow server \
+    --backend-store-uri=${BACKEND_URI} \
+    --default-artifact-root=${ARTIFACT_ROOT} \
+    --host=0.0.0.0 \
+    --port=5001
